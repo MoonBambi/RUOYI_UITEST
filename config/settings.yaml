@@ -1,0 +1,4 @@
+base_url: "http://localhost:80/login?redirect=%2Findex"
+browser: "chrome"
+implicit_wait: 10
+chrome_binary_path: "chrome-win64/chrome.exe"
