@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 import pyautogui
+import allure
 
 from .base_page import BasePage
 from utils_image_locator import ImageLocator
@@ -85,6 +86,7 @@ class SystemManagePage(BasePage):
         "//button[@onclick='submitHandler()']",
     )
 
+    @allure.step("获取左侧导航栏标签列表")
     def get_main_nav_labels(self):
         WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located((By.ID, "side-menu"))
@@ -98,27 +100,32 @@ class SystemManagePage(BasePage):
             if label.is_displayed() and label.text.strip()
         ]
 
+    @allure.step("点击左侧菜单：系统管理")
     def open_system(self) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.SYSTEM_MANAGE)
         ).click()
 
+    @allure.step("进入系统管理-部门管理页面")
     def open_dept(self) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.DEPT_MANAGE)
         ).click()
 
+    @allure.step("进入系统管理-角色管理页面")
     def open_role(self) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.ROLE_MANAGE)
         ).click()
 
+    @allure.step("进入系统管理-用户管理页面")
     def open_user(self) -> None:
         self.driver.switch_to.default_content()
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.USER_MANAGE)
         ).click()
 
+    @allure.step("新增部门：{name}，排序：{order}")
     def add_dept(self, name: str, order: str) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.frame_to_be_available_and_switch_to_it(
@@ -163,6 +170,7 @@ class SystemManagePage(BasePage):
         )
         confirm_button.click()
 
+    @allure.step("新增角色：Test")
     def add_role(self) -> None:
         self.driver.switch_to.default_content()
         WebDriverWait(self.driver, 10).until(
@@ -203,6 +211,7 @@ class SystemManagePage(BasePage):
             "if(btns.length){btns[btns.length-1].click();}"
         )
 
+    @allure.step("删除部门：{name}")
     def delete_dept(self, name: str) -> None:
         self.driver.switch_to.default_content()
         WebDriverWait(self.driver, 10).until(
@@ -255,6 +264,7 @@ class SystemManagePage(BasePage):
             wait_time=0.2,
         )
 
+    @allure.step("给用户 {login_name} 分配部门：{dept_keyword}")
     def set_user_dept(self, login_name: str, dept_keyword: str) -> None:
         self.driver.switch_to.default_content()
         WebDriverWait(self.driver, 10).until(
@@ -342,6 +352,7 @@ class SystemMonitorPage(BasePage):
         "//span[@class='nav-label' and normalize-space()='系统监控']/parent::a",
     )
 
+    @allure.step("点击左侧菜单：系统监控")
     def open(self) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.SYSTEM_MONITOR)
@@ -354,6 +365,7 @@ class SystemToolsPage(BasePage):
         "//span[@class='nav-label' and normalize-space()='系统工具']/parent::a",
     )
 
+    @allure.step("点击左侧菜单：系统工具")
     def open(self) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.SYSTEM_TOOLS)

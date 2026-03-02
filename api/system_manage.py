@@ -3,6 +3,7 @@ from urllib.request import Request
 from pathlib import Path
 import json
 import yaml
+import allure
 
 from api.client import ApiClient
 
@@ -12,8 +13,8 @@ API_URL_FILE = BASE_DIR / "data" / "api_url.yaml"
 with API_URL_FILE.open("r", encoding="utf-8") as f:
     API_URLS = yaml.safe_load(f) or {}
 
-#在api/system_manage.py中添加系统管理模块的API函数
 
+@allure.step("查询用户列表（根据登录名）")
 def get_user_list_by_login_name(
     client: ApiClient,
     login_name: str,
@@ -47,4 +48,3 @@ def get_user_list_by_login_name(
     with client.opener.open(req) as resp:
         body_bytes = resp.read()
     return json.loads(body_bytes.decode("utf-8"))
-
