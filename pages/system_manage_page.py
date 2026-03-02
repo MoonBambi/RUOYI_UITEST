@@ -247,28 +247,13 @@ class SystemManagePage(BasePage):
         delete_button.click()
 
         self.driver.switch_to.default_content()
-        try:
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(
-                    self.DIALOG_CONFIRM_BUTTON
-                )
-            )
-        except TimeoutException:
-            pass
-
         pyautogui.FAILSAFE = False
-        used_image = ImageLocator.image_click(
+        ImageLocator.image_click(
             "confirm.png",
             confidence=0.8,
-            max_attempts=1,
-            wait_time=0.1,
+            max_attempts=3,
+            wait_time=0.2,
         )
-
-        if not used_image:
-            self.driver.execute_script(
-                "var btns = document.querySelectorAll('a.layui-layer-btn0');"
-                "if(btns.length){btns[btns.length-1].click();}"
-            )
 
     def set_user_dept(self, login_name: str, dept_keyword: str) -> None:
         self.driver.switch_to.default_content()

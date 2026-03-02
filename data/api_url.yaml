@@ -1,0 +1,3 @@
+system_manage:
+  user:
+    list_by_login_name: "system/user/list"

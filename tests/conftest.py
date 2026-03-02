@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.edge.service import Service as EdgeService
 
 from pages.login_page import LoginPage
+from api.client import create_logged_in_client
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -110,6 +111,11 @@ def driver(config):
     finally:
         logger.info("Quitting WebDriver")
         driver.quit()
+
+
+@pytest.fixture(scope="session")
+def api_client(config):
+    return create_logged_in_client(config["base_url"])
 
 
 @pytest.fixture
