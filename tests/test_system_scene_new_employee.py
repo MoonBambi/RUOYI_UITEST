@@ -4,11 +4,15 @@ from pages.login_page import LoginPage
 from api.system_manage import get_user_list_by_login_name
 import logging
 import time
+import allure
 
 
 logger = logging.getLogger(__name__)
 
 
+@allure.feature("系统管理")
+@allure.story("新员工入职：分配部门和角色")
+@allure.title("新员工入职：分配部门和角色")
 @with_login
 def test_open_dept_manage_from_system_menu(driver):
     page = SystemManagePage(driver)
@@ -24,6 +28,9 @@ def test_open_dept_manage_from_system_menu(driver):
     page.set_user_dept("UITest", "北京分公司")
 
 
+@allure.feature("系统管理")
+@allure.story("新员工入职：验证导航权限")
+@allure.title("新员工入职：验证导航权限")
 def test_login_as_uitest(driver, config):
     login_page = LoginPage(driver)
     login_page.open(config["base_url"])
@@ -36,6 +43,9 @@ def test_login_as_uitest(driver, config):
     time.sleep(3)
 
 
+@allure.feature("系统管理")
+@allure.story("数据清理：接口清除临时数据")
+@allure.title("数据清理：接口清除临时数据")
 def test_cleanup_dept_via_api(api_client):
     result = get_user_list_by_login_name(api_client, "UITest")
     logger.info("system/user/list response for loginName=UITest: %s", result)

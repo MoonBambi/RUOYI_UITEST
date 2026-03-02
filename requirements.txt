@@ -2,3 +2,4 @@ pytest
 selenium
 PyYAML
 pyperclip
+allure-pytest

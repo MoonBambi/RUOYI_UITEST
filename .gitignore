@@ -11,6 +11,8 @@ __pycache__/
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+allure-results/
+allure-report/
 
 dist/
 build/
