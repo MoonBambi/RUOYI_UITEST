@@ -6,8 +6,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+import pyautogui
 
 from .base_page import BasePage
+from utils_image_locator import ImageLocator
 
 
 class SystemManagePage(BasePage):
@@ -19,9 +21,25 @@ class SystemManagePage(BasePage):
         By.XPATH,
         "//a[contains(@class,'menuItem') and contains(@href,'/system/dept')]",
     )
+    ROLE_MANAGE = (
+        By.XPATH,
+        "//a[contains(@class,'menuItem') and contains(@href,'/system/role')]",
+    )
+    USER_MANAGE = (
+        By.XPATH,
+        "//a[@class='menuItem' and @href='/system/user' and normalize-space()='用户管理']",
+    )
     DEPT_IFRAME = (
         By.XPATH,
         "//iframe[contains(@class,'RuoYi_iframe') and @data-id='/system/dept']",
+    )
+    ROLE_IFRAME = (
+        By.XPATH,
+        "//iframe[contains(@class,'RuoYi_iframe') and @data-id='/system/role']",
+    )
+    USER_IFRAME = (
+        By.XPATH,
+        "//iframe[contains(@class,'RuoYi_iframe') and @data-id='/system/user']",
     )
     TOOLBAR_ADD_BUTTON = (
         By.XPATH,
@@ -57,18 +75,51 @@ class SystemManagePage(BasePage):
         "//div[contains(@class,'layui-layer-dialog')]"
         "//a[contains(@class,'layui-layer-btn0') and normalize-space()='确定']",
     )
+    ROLE_TEST_CHECKBOX = (
+        By.XPATH,
+        "//label[contains(normalize-space(.),'Test')]//input[@name='role']",
+    )
 
-    def open_system_manage(self) -> None:
+    SAVE_BUTTON = (
+        By.XPATH,
+        "//button[@onclick='submitHandler()']",
+    )
+
+    def get_main_nav_labels(self):
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located((By.ID, "side-menu"))
+        )
+        labels = self.driver.find_elements(
+            By.XPATH, "//ul[@id='side-menu']//span[@class='nav-label']"
+        )
+        return [
+            label.text.strip()
+            for label in labels
+            if label.is_displayed() and label.text.strip()
+        ]
+
+    def open_system(self) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.SYSTEM_MANAGE)
         ).click()
 
-    def open_dept_manage(self) -> None:
+    def open_dept(self) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(self.DEPT_MANAGE)
         ).click()
 
-    def add_dept_with_keyboard(self, name: str, order: str) -> None:
+    def open_role(self) -> None:
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.ROLE_MANAGE)
+        ).click()
+
+    def open_user(self) -> None:
+        self.driver.switch_to.default_content()
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.USER_MANAGE)
+        ).click()
+
+    def add_dept(self, name: str, order: str) -> None:
         WebDriverWait(self.driver, 10).until(
             EC.frame_to_be_available_and_switch_to_it(
                 self.DEPT_IFRAME
@@ -90,15 +141,20 @@ class SystemManagePage(BasePage):
             )
         )
 
-        body = self.driver.find_element(By.TAG_NAME, "body")
-        actions = ActionChains(self.driver)
-        actions.click(body)
-        actions.send_keys(Keys.TAB)
-        actions.send_keys(Keys.TAB)
-        actions.send_keys(name)
-        actions.send_keys(Keys.TAB)
-        actions.send_keys(order)
-        actions.perform()
+        ImageLocator.image_click_and_write(
+            "dept_name.png",
+            name,
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+        ImageLocator.image_click_and_write(
+            "dept_sort.png",
+            order,
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
 
         confirm_button = WebDriverWait(self.driver, 10).until(
             EC.element_to_be_clickable(
@@ -107,7 +163,47 @@ class SystemManagePage(BasePage):
         )
         confirm_button.click()
 
-    def search_and_delete_dept_by_name(self, name: str) -> None:
+    def add_role(self) -> None:
+        self.driver.switch_to.default_content()
+        WebDriverWait(self.driver, 10).until(
+            EC.frame_to_be_available_and_switch_to_it(
+                self.ROLE_IFRAME
+            )
+        )
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(
+                self.TOOLBAR_ADD_BUTTON
+            )
+        )
+        self.driver.execute_script("$.operate.add();")
+        self.driver.switch_to.default_content()
+        ImageLocator.image_click_and_write(
+            "role_name.png",
+            "Test",
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+        ImageLocator.image_click_and_write(
+            "grant_word.png",
+            "view",
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+        ImageLocator.image_click_and_write(
+            "sort.png",
+            "999",
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+        self.driver.execute_script(
+            "var btns = document.querySelectorAll('a.layui-layer-btn0');"
+            "if(btns.length){btns[btns.length-1].click();}"
+        )
+
+    def delete_dept(self, name: str) -> None:
         self.driver.switch_to.default_content()
         WebDriverWait(self.driver, 10).until(
             EC.frame_to_be_available_and_switch_to_it(
@@ -160,24 +256,120 @@ class SystemManagePage(BasePage):
         except TimeoutException:
             pass
 
-        used_image = False
-        try:
-            import pyautogui  # type: ignore
-
-            pyautogui.FAILSAFE = False
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            image_path = os.path.join(base_dir, "imgs", "confirm.png")
-            location = pyautogui.locateCenterOnScreen(
-                image_path, confidence=0.8
-            )
-            if location is not None:
-                pyautogui.click(location.x, location.y)
-                used_image = True
-        except Exception:
-            used_image = False
+        pyautogui.FAILSAFE = False
+        used_image = ImageLocator.image_click(
+            "confirm.png",
+            confidence=0.8,
+            max_attempts=1,
+            wait_time=0.1,
+        )
 
         if not used_image:
             self.driver.execute_script(
                 "var btns = document.querySelectorAll('a.layui-layer-btn0');"
                 "if(btns.length){btns[btns.length-1].click();}"
             )
+
+    def set_user_dept(self, login_name: str, dept_keyword: str) -> None:
+        self.driver.switch_to.default_content()
+        WebDriverWait(self.driver, 10).until(
+            EC.frame_to_be_available_and_switch_to_it(
+                self.USER_IFRAME
+            )
+        )
+        row = WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    f"//tr[.//td[normalize-space()='{login_name}']]",
+                )
+            )
+        )
+        edit_button = row.find_element(
+            By.XPATH,
+            ".//a[contains(@class,'btn-success') and contains(.,'编辑')]",
+        )
+        edit_button.click()
+
+        self.driver.switch_to.default_content()
+        WebDriverWait(self.driver, 10).until(
+            EC.frame_to_be_available_and_switch_to_it(
+                (
+                    By.XPATH,
+                    "//iframe[contains(@class,'RuoYi_iframe') and contains(@data-id,'/system/user/edit')]",
+                )
+            )
+        )
+
+        ImageLocator.image_click(
+            "select_role.png",
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+
+        self.driver.switch_to.default_content()
+        ImageLocator.image_click_and_write(
+            "select_dept1.png",
+            dept_keyword,
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+
+        self.driver.switch_to.default_content()
+        ImageLocator.image_click_and_write(
+            "select_dept2.png",
+            dept_keyword,
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+        ImageLocator.image_click(
+            "dept.png",
+            confidence=0.9,
+            max_attempts=3,
+            wait_time=0.5,
+        )
+        self.driver.execute_script(
+            "var btns = document.querySelectorAll('a.layui-layer-btn0');"
+            "if(btns.length){btns[btns.length-1].click();}"
+        )
+
+        WebDriverWait(self.driver, 10).until(
+            EC.frame_to_be_available_and_switch_to_it(
+                (
+                    By.XPATH,
+                    "//iframe[contains(@class,'RuoYi_iframe') and contains(@data-id,'/system/user/edit')]",
+                )
+            )
+        )
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(
+                self.SAVE_BUTTON
+            )
+        ).click()
+
+
+class SystemMonitorPage(BasePage):
+    SYSTEM_MONITOR = (
+        By.XPATH,
+        "//span[@class='nav-label' and normalize-space()='系统监控']/parent::a",
+    )
+
+    def open(self) -> None:
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.SYSTEM_MONITOR)
+        ).click()
+
+
+class SystemToolsPage(BasePage):
+    SYSTEM_TOOLS = (
+        By.XPATH,
+        "//span[@class='nav-label' and normalize-space()='系统工具']/parent::a",
+    )
+
+    def open(self) -> None:
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.SYSTEM_TOOLS)
+        ).click()
