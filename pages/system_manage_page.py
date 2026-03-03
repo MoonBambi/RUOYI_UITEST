@@ -83,6 +83,47 @@ class SystemManagePage(BasePage):
         "//button[@onclick='submitHandler()']",
     )
 
+    @allure.step("新增用户（仅基础信息）：登录名={login_name}")
+    def add_user_UI(self, login_name: str, user_name: str, password: str) -> None:
+        self.open_system()
+        self.open_user()
+        self.driver.switch_to.default_content()
+        WebDriverWait(self.driver, 10).until(
+            EC.frame_to_be_available_and_switch_to_it(self.USER_IFRAME)
+        )
+        WebDriverWait(self.driver, 10).until(
+            EC.presence_of_element_located(self.TOOLBAR_ADD_BUTTON)
+        )
+        self.driver.execute_script("$.operate.add();")
+        self.driver.switch_to.default_content()
+        WebDriverWait(self.driver, 20).until(
+            EC.frame_to_be_available_and_switch_to_it(
+                (
+                    By.XPATH,
+                    "//iframe[contains(@src,'/system/user/add') or contains(@data-id,'/system/user/add')]",
+                )
+            )
+        )
+        user_name_input = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.NAME, "userName"))
+        )
+        user_name_input.clear()
+        user_name_input.send_keys(user_name)
+        login_name_input = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.ID, "loginName"))
+        )
+        login_name_input.clear()
+        login_name_input.send_keys(login_name)
+        password_input = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.NAME, "password"))
+        )
+        password_input.clear()
+        password_input.send_keys(password)
+        WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.SAVE_BUTTON)
+        ).click()
+        self.driver.switch_to.default_content()
+
     @allure.step("获取左侧导航栏标签列表")
     def get_main_nav_labels(self):
         WebDriverWait(self.driver, 10).until(

@@ -9,3 +9,6 @@ system_manage:
   role:
     list_by_name: "system/role/list"
     delete: "system/role/remove"
+  config:
+    list: "system/config/list"
+    edit: "system/config/edit"

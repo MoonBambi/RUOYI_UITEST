@@ -291,3 +291,73 @@ def delete_dept_by_name(
     if last_response is None:
         return {"code": 0, "msg": "no valid deptId to delete"}
     return last_response
+
+
+@allure.step("查询参数配置：configKey={config_key}")
+def get_config_list(
+    client: ApiClient,
+    config_key: str = "",
+    config_name: str = "",
+    config_type: str = "",
+    page_num: int = 1,
+    page_size: int = 10,
+) -> dict:
+    form = {
+        "pageSize": str(page_size),
+        "pageNum": str(page_num),
+        "orderByColumn": "createTime",
+        "isAsc": "desc",
+        "configName": config_name,
+        "configKey": config_key,
+        "configType": config_type,
+        "params[beginTime]": "",
+        "params[endTime]": "",
+    }
+    encoded = urlencode(form).encode("utf-8")
+    path = API_URLS["system_manage"]["config"]["list"]
+    req = Request(
+        urljoin(client.server_root, path),
+        data=encoded,
+        method="POST",
+    )
+    req.add_header(
+        "Content-Type",
+        "application/x-www-form-urlencoded; charset=UTF-8",
+    )
+    with client.opener.open(req) as resp:
+        body_bytes = resp.read()
+    return json.loads(body_bytes.decode("utf-8"))
+
+
+@allure.step("修改参数配置：configName={config_name}, configKey={config_key}")
+def edit_config(
+    client: ApiClient,
+    config_id: int,
+    config_name: str,
+    config_key: str,
+    config_value: str,
+    config_type: str = "Y",
+    remark: str = "",
+) -> dict:
+    form = {
+        "configId": str(config_id),
+        "configName": config_name,
+        "configKey": config_key,
+        "configValue": config_value,
+        "configType": config_type,
+        "remark": remark,
+    }
+    encoded = urlencode(form).encode("utf-8")
+    path = API_URLS["system_manage"]["config"]["edit"]
+    req = Request(
+        urljoin(client.server_root, path),
+        data=encoded,
+        method="POST",
+    )
+    req.add_header(
+        "Content-Type",
+        "application/x-www-form-urlencoded; charset=UTF-8",
+    )
+    with client.opener.open(req) as resp:
+        body_bytes = resp.read()
+    return json.loads(body_bytes.decode("utf-8"))

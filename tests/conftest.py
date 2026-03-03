@@ -28,9 +28,15 @@ def config():
 
 
 def _build_chrome_driver(options):
-    driver_path = DRIVER_DIR / "chromedriver.exe"
+    # 优先查找根目录下 chromedriver-win64 文件夹中的驱动（Chrome for Testing 默认解压路径）
+    driver_path = PROJECT_ROOT / "chromedriver-win64" / "chromedriver.exe"
     if not driver_path.exists():
-        raise RuntimeError(f"Chrome driver not found at {driver_path}")
+        # 否则查找 drivers 目录下的驱动
+        driver_path = DRIVER_DIR / "chromedriver.exe"
+
+    if not driver_path.exists():
+        raise RuntimeError(f"Chrome driver not found. Checked locations:\n1. {PROJECT_ROOT / 'chromedriver-win64' / 'chromedriver.exe'}\n2. {DRIVER_DIR / 'chromedriver.exe'}")
+    
     service = ChromeService(executable_path=str(driver_path))
     driver = webdriver.Chrome(service=service, options=options)
     driver.maximize_window()
