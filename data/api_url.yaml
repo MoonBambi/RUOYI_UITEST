@@ -1,3 +1,11 @@
 system_manage:
   user:
     list_by_login_name: "system/user/list"
+    add: "system/user/add"
+    delete: "system/user/remove"
+  dept:
+    list_by_name: "system/dept/list"
+    delete_prefix: "system/dept/remove"
+  role:
+    list_by_name: "system/role/list"
+    delete: "system/role/remove"

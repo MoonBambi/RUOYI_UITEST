@@ -1,11 +1,8 @@
-import os
+import time
 
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
 import pyautogui
 import allure
 
@@ -170,8 +167,8 @@ class SystemManagePage(BasePage):
         )
         confirm_button.click()
 
-    @allure.step("新增角色：Test")
-    def add_role(self) -> None:
+    @allure.step("新增角色：{role_name}")
+    def add_role(self, role_name: str = "Test") -> None:
         self.driver.switch_to.default_content()
         WebDriverWait(self.driver, 10).until(
             EC.frame_to_be_available_and_switch_to_it(
@@ -187,7 +184,7 @@ class SystemManagePage(BasePage):
         self.driver.switch_to.default_content()
         ImageLocator.image_click_and_write(
             "role_name.png",
-            "Test",
+            role_name,
             confidence=0.9,
             max_attempts=3,
             wait_time=0.5,
@@ -296,6 +293,7 @@ class SystemManagePage(BasePage):
             )
         )
 
+        time.sleep(2)
         ImageLocator.image_click(
             "select_role.png",
             confidence=0.9,
@@ -303,6 +301,7 @@ class SystemManagePage(BasePage):
             wait_time=0.5,
         )
 
+        time.sleep(2)
         self.driver.switch_to.default_content()
         ImageLocator.image_click_and_write(
             "select_dept1.png",
@@ -312,6 +311,7 @@ class SystemManagePage(BasePage):
             wait_time=0.5,
         )
 
+        time.sleep(2)
         self.driver.switch_to.default_content()
         ImageLocator.image_click_and_write(
             "select_dept2.png",
@@ -320,6 +320,7 @@ class SystemManagePage(BasePage):
             max_attempts=3,
             wait_time=0.5,
         )
+        time.sleep(2)
         ImageLocator.image_click(
             "dept.png",
             confidence=0.9,
